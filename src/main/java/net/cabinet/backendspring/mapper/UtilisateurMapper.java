@@ -25,8 +25,11 @@ public class UtilisateurMapper {
         dto.setNumTel(utilisateur.getNumTel());
         dto.setSignature(utilisateur.getSignature());
 
-        dto.setCabinetId(utilisateur.getCabinet().getId());
-        dto.setNomCabinet(utilisateur.getCabinet().getNom());
+        if(utilisateur.getCabinet() != null){
+            dto.setCabinetId(utilisateur.getCabinet().getId());
+            dto.setNomCabinet(utilisateur.getCabinet().getNom());
+        }
+
 
 //        dto.setMedecinId(utilisateur.getMedecin().getId());
 //        dto.setMedecinNom(utilisateur.getMedecin().getNom());

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/dossier-medical")
+@RequestMapping("/api/dossier-medicaux")
 public class DossierMedicalController {
 
     private final DossierMedicalService dossierMedicalService;
