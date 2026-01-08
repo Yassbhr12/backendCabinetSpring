@@ -6,6 +6,7 @@ import net.cabinet.backendspring.dto.authentification.AuthRequest;
 import net.cabinet.backendspring.dto.authentification.ValidationCodeRequest;
 import net.cabinet.backendspring.entity.Cabinet;
 import net.cabinet.backendspring.entity.Utilisateur;
+import net.cabinet.backendspring.helper.enums.Role;
 import net.cabinet.backendspring.helper.security.JwtUtils;
 import net.cabinet.backendspring.mapper.UtilisateurMapper;
 import net.cabinet.backendspring.repository.CabinetRepo;
@@ -79,6 +80,11 @@ public class UtilisateurService {
         return mapper.toDtoList(utilisateurs);
     }
 
+    public List<UtilisateurDto> getUtilisateursByRole(Role role) {
+        List<Utilisateur> utilisateurs = utilisateurRepo.findAllByRole(role);
+        return mapper.toDtoList(utilisateurs);
+    }
+
     public UtilisateurDto getUtilisateurByLogin(String login){
         Utilisateur utilisateur = utilisateurRepo.findUtilisateurByLogin(login).orElseThrow(()->new RuntimeException("Utilisateur Not Found"));
         return mapper.toDto(utilisateur);
@@ -89,7 +95,7 @@ public class UtilisateurService {
         Utilisateur utilisateur = utilisateurRepo.findUtilisateurByLogin(authRequest.getLogin())
                 .orElseThrow(() -> new RuntimeException("Utilisateur Not Found"));
 
-        if (!utilisateur.getActif()) {
+        if (Boolean.FALSE.equals(utilisateur.getActif())) {
             throw new Exception("Votre compte est désactivé, contactez l'administrateur");
         }
 

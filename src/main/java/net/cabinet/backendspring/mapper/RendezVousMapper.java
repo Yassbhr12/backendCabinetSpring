@@ -24,16 +24,22 @@ public class RendezVousMapper {
         dto.setStatut(rendezVous.getStatut());
         dto.setNotes(rendezVous.getNotes());
 
-        dto.setPatientId(rendezVous.getPatient().getId());
-        dto.setCin(rendezVous.getPatient().getCin());
-        dto.setPatientNom(rendezVous.getPatient().getNom());
+        if (rendezVous.getPatient() != null) {
+            dto.setPatientId(rendezVous.getPatient().getId());
+            dto.setCin(rendezVous.getPatient().getCin());
+            dto.setPatientNom(rendezVous.getPatient().getNom());
+        }
 
-        dto.setMedecinId(rendezVous.getMedecin().getId());
-        dto.setMedecinNom(rendezVous.getMedecin().getNom());
-        dto.setMedecinPrenom(rendezVous.getMedecin().getPrenom());
+        if (rendezVous.getMedecin() != null) {
+            dto.setMedecinId(rendezVous.getMedecin().getId());
+            dto.setMedecinNom(rendezVous.getMedecin().getNom());
+            dto.setMedecinPrenom(rendezVous.getMedecin().getPrenom());
+        }
 
-        dto.setConsultationId(rendezVous.getConsultation().getIdConsultation());
-        dto.setTypeConsultation(rendezVous.getConsultation().getTypeConsultation());
+        if (rendezVous.getConsultation() != null) {
+            dto.setConsultationId(rendezVous.getConsultation().getIdConsultation());
+            dto.setTypeConsultation(rendezVous.getConsultation().getTypeConsultation());
+        }
 
         return dto;
     }
@@ -45,7 +51,9 @@ public class RendezVousMapper {
         rendezVous.setDateRdv(dto.getDateRdv());
         rendezVous.setHeureRdv(dto.getHeureRdv());
         rendezVous.setMotif(dto.getMotif());
-        rendezVous.setStatut(dto.getStatut());
+        if (dto.getStatut() != null) {
+            rendezVous.setStatut(dto.getStatut());
+        }
         rendezVous.setNotes(dto.getNotes());
 
         rendezVous.setPatient(patient);

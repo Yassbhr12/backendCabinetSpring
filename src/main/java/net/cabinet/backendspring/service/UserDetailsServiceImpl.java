@@ -24,7 +24,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Utilisateur utilisateur = utilisateurRepo.findUtilisateurByLogin(username).orElseThrow(()-> new UsernameNotFoundException("UserName Not Found "));
 
-        if(!utilisateur.getActif()){
+        boolean isActif = !Boolean.FALSE.equals(utilisateur.getActif());
+
+        if(!isActif){
             throw new RuntimeException("Compte est desative");
         }
 
@@ -33,7 +35,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .password(utilisateur.getPwd())
                 .authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + utilisateur.getRole().name())))
                 .accountExpired(false)
-                .accountLocked(!utilisateur.getActif())
+                .accountLocked(!isActif)
                 .credentialsExpired(false)
                 .build();
     }

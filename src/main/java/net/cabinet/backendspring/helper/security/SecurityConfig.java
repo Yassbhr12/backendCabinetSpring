@@ -46,11 +46,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/cabinets/**").hasRole("ADMIN")
                         .requestMatchers("/api/utilisateurs/**").hasRole("ADMIN")
                         .requestMatchers("/api/medicaments/**").hasRole("ADMIN")
+                        .requestMatchers("/api/medecins/**").hasAnyRole("ADMIN", "SECRETAIRE")
 
                         .requestMatchers("/api/patients/**").hasAnyRole("ADMIN" , "MEDECIN" , "SECRETAIRE")
                         .requestMatchers("/api/rendez-vous/**").hasAnyRole("ADMIN" , "MEDECIN" , "SECRETAIRE")
                         .requestMatchers("/api/notifications/**").hasAnyRole("ADMIN" , "MEDECIN" , "SECRETAIRE")
-
+                        .requestMatchers("/api/consultations/**").hasAnyRole("ADMIN" , "MEDECIN" , "SECRETAIRE")
                         .requestMatchers("/api/factures/**").hasAnyRole("ADMIN" , "SECRETAIRE")
 
                         .requestMatchers("/api/dossier-medicaux/**").hasAnyRole("ADMIN" , "MEDECIN")

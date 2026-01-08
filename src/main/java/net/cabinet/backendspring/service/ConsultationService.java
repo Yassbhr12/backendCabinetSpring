@@ -3,11 +3,13 @@ package net.cabinet.backendspring.service;
 
 import net.cabinet.backendspring.dto.ConsultationDto;
 import net.cabinet.backendspring.entity.Consultation;
+import net.cabinet.backendspring.entity.DossierMedical;
 import net.cabinet.backendspring.entity.Patient;
 import net.cabinet.backendspring.entity.RendezVous;
 import net.cabinet.backendspring.entity.Utilisateur;
 import net.cabinet.backendspring.mapper.ConsultationMapper;
 import net.cabinet.backendspring.repository.ConsultationRepo;
+import net.cabinet.backendspring.repository.DossierMedicalRepo;
 import net.cabinet.backendspring.repository.PatientRepo;
 import net.cabinet.backendspring.repository.RendezVousRepo;
 import net.cabinet.backendspring.repository.UtilisateurRepo;
@@ -23,13 +25,15 @@ public class ConsultationService {
     private final PatientRepo patientRepo;
     private final UtilisateurRepo utilisateurRepo;
     private final RendezVousRepo rendezVousRepo;
+    private final DossierMedicalRepo dossierMedicalRepo;
     private final ConsultationMapper mapper;
 
-    public ConsultationService(ConsultationRepo consultationRepo, PatientRepo patientRepo, UtilisateurRepo utilisateurRepo, RendezVousRepo rendezVousRepo, ConsultationMapper mapper) {
+    public ConsultationService(ConsultationRepo consultationRepo, PatientRepo patientRepo, UtilisateurRepo utilisateurRepo, RendezVousRepo rendezVousRepo, DossierMedicalRepo dossierMedicalRepo, ConsultationMapper mapper) {
         this.consultationRepo = consultationRepo;
         this.patientRepo = patientRepo;
         this.utilisateurRepo = utilisateurRepo;
         this.rendezVousRepo = rendezVousRepo;
+        this.dossierMedicalRepo = dossierMedicalRepo;
         this.mapper = mapper;
     }
 
@@ -38,8 +42,9 @@ public class ConsultationService {
         Patient patient = patientRepo.findById(consultationDto.getPatientId()).orElseThrow(()->new RuntimeException("Patient Not Found"));
         Utilisateur medecin = utilisateurRepo.findById(consultationDto.getMedecinId()).orElseThrow(()->new RuntimeException("Medecin Not Found"));
         RendezVous rendezVous = rendezVousRepo.findById(consultationDto.getRendezVousId()).orElseThrow(()->new RuntimeException("Rendez-vous Not Found"));
+        DossierMedical dossierMedical = dossierMedicalRepo.findById(consultationDto.getDossierMedicalId()).orElseThrow(()->new RuntimeException("Dossier Medical Not Found"));
 
-        Consultation consultation = mapper.toEntity(consultationDto,rendezVous,patient,medecin);
+        Consultation consultation = mapper.toEntity(consultationDto,rendezVous,patient,medecin,dossierMedical);
 
         Consultation saved = consultationRepo.save(consultation);
 
