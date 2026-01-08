@@ -1,0 +1,88 @@
+@startuml Sequence Diagram - Patient Appointment Creation
+!theme plain
+autonumber
+
+actor "Secrétaire/Médecin" as User
+participant "RendezVousController" as Controller
+participant "RendezVousService" as Service
+participant "PatientService" as PatientService
+participant "UtilisateurService" as UserService
+participant "RendezVousMapper" as Mapper
+participant "Database" as DB
+
+title Création d'un Rendez-vous Patient
+
+User -> Controller: POST /api/rendez-vous\n(rendezVousDto)
+activate Controller
+
+Controller -> Service: createRendezVous(dto)
+activate Service
+
+' Validation du patient
+Service -> PatientService: getPatientById(patientId)
+activate PatientService
+PatientService -> DB: findById(patientId)
+activate DB
+DB --> PatientService: patient
+deactivate DB
+
+alt Patient existe
+    PatientService --> Service: patient
+    deactivate PatientService
+    
+    ' Validation du médecin
+    Service -> UserService: getUtilisateurById(medecinId)
+    activate UserService
+    UserService -> DB: findById(medecinId)
+    activate DB
+    DB --> UserService: medecin (Utilisateur)
+    deactivate DB
+    UserService --> Service: medecin
+    deactivate UserService
+    
+    ' Vérification de la disponibilité
+    Service -> DB: checkDisponibilite(date, heure, medecinId)
+    activate DB
+    DB --> Service: disponible
+    deactivate DB
+    
+    alt Créneau disponible
+        Service -> Mapper: toEntity(dto)
+        activate Mapper
+        Mapper --> Service: rendezVous (entity)
+        deactivate Mapper
+        
+        Service -> Service: set statut = EN_ATTENTE
+        Service -> Service: set dateCreation = now()
+        
+        Service -> DB: save(rendezVous)
+        activate DB
+        DB --> Service: rendezVous saved
+        deactivate DB
+        
+        Service -> Mapper: toDto(rendezVous)
+        activate Mapper
+        Mapper --> Service: rendezVousDto
+        deactivate Mapper
+        
+        Service --> Controller: rendezVousDto
+        deactivate Service
+        Controller --> User: 201 Created\nrendezVousDto
+        
+    else Créneau non disponible
+        Service --> Controller: Exception\n"Créneau non disponible"
+        deactivate Service
+        Controller --> User: 409 Conflict\n"Créneau occupé"
+    end
+    
+else Patient n'existe pas
+    PatientService --> Service: Exception\n"Patient non trouvé"
+    deactivate PatientService
+    Service --> Controller: Exception
+    deactivate Service
+    Controller --> User: 404 Not Found\n"Patient non trouvé"
+end
+
+deactivate Controller
+
+@enduml

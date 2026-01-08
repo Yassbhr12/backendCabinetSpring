@@ -1,0 +1,89 @@
+@startuml Sequence Diagram - Authentication Process
+!theme plain
+autonumber
+
+actor "Utilisateur" as User
+participant "AuthRequestController" as Controller
+participant "UtilisateurService" as Service
+participant "EmailService" as Email
+participant "UserDetailsServiceImpl" as UserDetails
+participant "Database" as DB
+
+title Processus d'Authentification avec Code de Validation
+
+== Phase 1: Connexion ==
+User -> Controller: POST /api/auth/login\n(login, password)
+activate Controller
+Controller -> Service: processLogin(authRequest)
+activate Service
+
+Service -> UserDetails: loadUserByUsername(login)
+activate UserDetails
+UserDetails -> DB: findByLogin(login)
+activate DB
+DB --> UserDetails: utilisateur
+deactivate DB
+UserDetails --> Service: userDetails
+deactivate UserDetails
+
+Service -> Service: vérifier mot de passe
+Service -> Service: générer code validation (6 chiffres)
+Service -> Service: sauvegarder code + expiration
+
+Service -> DB: update(utilisateur)
+activate DB
+DB --> Service: OK
+deactivate DB
+
+Service -> Email: sendValidationCodeEmail(email, code)
+activate Email
+Email --> Service: email envoyé
+deactivate Email
+
+Service --> Controller: OK
+deactivate Service
+Controller --> User: 200 OK\n"Code envoyé"
+deactivate Controller
+
+== Phase 2: Validation du Code ==
+User -> Controller: POST /api/auth/login/validation\n(login, code)
+activate Controller
+Controller -> Service: validateCode(validationCodeRequest)
+activate Service
+
+Service -> DB: findByLogin(login)
+activate DB
+DB --> Service: utilisateur
+deactivate DB
+
+Service -> Service: vérifier code\net expiration
+
+alt Code valide
+    Service -> Service: générer JWT token
+    Service -> DB: clear validation code
+    activate DB
+    DB --> Service: OK
+    deactivate DB
+    
+    Service --> Controller: token JWT
+    deactivate Service
+    
+    Controller -> Service: getUtilisateurByLogin(login)
+    activate Service
+    Service -> DB: findByLogin(login)
+    activate DB
+    DB --> Service: utilisateur
+    deactivate DB
+    Service --> Controller: UtilisateurDto
+    deactivate Service
+    
+    Controller --> User: 200 OK\n{token, userInfo}
+else Code invalide ou expiré
+    Service --> Controller: Exception
+    deactivate Service
+    Controller --> User: 401 Unauthorized\n"Code invalide"
+end
+
+deactivate Controller
+
+@enduml

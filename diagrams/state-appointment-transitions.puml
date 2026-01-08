@@ -1,0 +1,69 @@
+@startuml State Diagram - Appointment Status Transitions
+!theme plain
+
+title Diagramme d'État-Transition pour Rendez-vous
+
+[*] --> EN_ATTENTE : Création RDV
+
+state EN_ATTENTE {
+    EN_ATTENTE : Rendez-vous créé
+    EN_ATTENTE : En attente de confirmation
+    EN_ATTENTE : Peut être modifié librement
+}
+
+state CONFIRME {
+    CONFIRME : Patient a confirmé sa présence
+    CONFIRME : Médecin est informé
+    CONFIRME : Prêt pour consultation
+}
+
+state TERMINE {
+    TERMINE : Consultation effectuée
+    TERMINE : Dossier médical mis à jour
+    TERMINE : Facture générée
+}
+
+state ANNULE {
+    ANNULE : Rendez-vous annulé
+    ANNULE : Créneau libéré
+    ANNULE : Notification envoyée
+}
+
+EN_ATTENTE --> CONFIRME : Confirmer RDV\n[Patient présent]
+EN_ATTENTE --> ANNULE : Annuler RDV\n[Patient absent / Demande annulation]
+EN_ATTENTE --> EN_ATTENTE : Modifier RDV\n[Changement date/heure]
+
+CONFIRME --> TERMINE : Terminer consultation\n[Consultation effectuée]
+CONFIRME --> ANNULE : Annulation tardive\n[Urgence médecin / Imprévu]
+CONFIRME --> EN_ATTENTE : Rétrograder\n[Patient non présenté]
+
+TERMINE --> [*] : Archivé
+ANNULE --> [*] : Archivé
+
+note right of EN_ATTENTE
+    État initial lors de la création
+    du rendez-vous par secrétaire
+    ou par le système de réservation
+end note
+
+note right of CONFIRME
+    État après vérification
+    de la présence du patient
+    au cabinet
+end note
+
+note bottom of TERMINE
+    État final après consultation.
+    Une consultation est créée
+    et liée au rendez-vous.
+    La facture est générée.
+end note
+
+note left of ANNULE
+    État final en cas d'annulation.
+    Peut survenir depuis EN_ATTENTE
+    ou exceptionnellement depuis CONFIRME.
+    Notifications envoyées au patient.
+end note
+
+@enduml

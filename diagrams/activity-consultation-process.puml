@@ -1,0 +1,115 @@
+@startuml Activity Diagram - Consultation Process
+!theme plain
+
+|Secrétaire|
+start
+:Patient arrive au cabinet;
+:Vérifier rendez-vous;
+
+if (Rendez-vous existe?) then (oui)
+    :Confirmer présence patient;
+    :Mettre à jour statut RDV\nà "CONFIRME";
+else (non)
+    :Créer rendez-vous urgent;
+    :Saisir informations RDV;
+endif
+
+:Notifier médecin;
+
+|Médecin|
+:Recevoir notification;
+:Consulter agenda;
+:Appeler patient;
+
+|Salle de consultation|
+:Patient entre en consultation;
+:Ouvrir dossier médical;
+
+fork
+    :Consulter antécédents;
+fork again
+    :Consulter historique\nconsultations;
+fork again
+    :Vérifier allergies;
+end fork
+
+:Réaliser examen clinique;
+note right
+    Mesures vitales, 
+    auscultation, etc.
+end note
+
+:Enregistrer observations\nexamen clinique;
+
+if (Examens complémentaires\nnécessaires?) then (oui)
+    :Prescrire examens;
+    :Ajouter à la consultation;
+endif
+
+:Établir diagnostic;
+
+if (Traitement nécessaire?) then (oui)
+    :Rechercher médicaments;
+    :Vérifier contre-indications;
+    
+    if (Contre-indications?) then (oui)
+        :Chercher alternative;
+    else (non)
+        :Prescrire traitement;
+    endif
+endif
+
+:Ajouter observations générales;
+:Enregistrer consultation;
+
+:Mettre à jour dossier médical;
+:Ajouter à l'historique;
+
+:Changer statut RDV\nà "TERMINE";
+
+|Secrétaire|
+:Recevoir notification\nconsultation terminée;
+
+:Générer facture;
+
+:Calculer montant\nselon mutuelle;
+
+if (Type Mutuelle?) then (CNSS)
+    :Appliquer réduction 70%;
+elseif (CNOPS) then
+    :Appliquer réduction 80%;
+else (AUCUNE)
+    :Tarif plein;
+endif
+
+:Présenter facture au patient;
+
+if (Patient paie?) then (oui)
+    :Enregistrer paiement;
+    :Sélectionner mode paiement;
+    :Mettre à jour statut\nfacture à "PAYEE";
+    :Imprimer reçu;
+else (non)
+    :Marquer statut "IMPAYEE";
+    :Programmer rappel;
+endif
+
+:Archiver documents;
+
+if (Prochain RDV nécessaire?) then (oui)
+    :Proposer dates disponibles;
+    :Créer nouveau RDV;
+    :Envoyer confirmation;
+endif
+
+:Raccompagner patient;
+
+stop
+
+note right of start
+    Processus complet de consultation
+    depuis l'arrivée du patient
+    jusqu'à son départ
+end note
+
+@enduml

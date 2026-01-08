@@ -1,0 +1,89 @@
+@startuml Use Case Diagram - Patient Management
+!theme plain
+
+left to right direction
+
+actor "Secrétaire" as Secretaire
+actor "Médecin" as Medecin
+
+rectangle "Système Cabinet Médical" {
+    
+    package "Gestion des Patients" {
+        usecase "Créer un patient" as UC1
+        usecase "Modifier informations patient" as UC2
+        usecase "Supprimer un patient" as UC3
+        usecase "Rechercher un patient" as UC4
+        usecase "Lister tous les patients" as UC5
+        usecase "Consulter dossier patient" as UC6
+    }
+    
+    package "Gestion Dossier Médical" {
+        usecase "Créer dossier médical" as UC7
+        usecase "Consulter dossier médical" as UC8
+        usecase "Modifier dossier médical" as UC9
+        usecase "Consulter historique consultations" as UC10
+        usecase "Ajouter antécédents médicaux" as UC11
+        usecase "Ajouter antécédents chirurgicaux" as UC12
+        usecase "Gérer allergies" as UC13
+        usecase "Gérer traitements en cours" as UC14
+        usecase "Joindre documents médicaux" as UC15
+    }
+}
+
+' Relations Secrétaire
+Secretaire --> UC1
+Secretaire --> UC2
+Secretaire --> UC3
+Secretaire --> UC4
+Secretaire --> UC5
+Secretaire --> UC6
+
+' Relations Médecin
+Medecin --> UC4
+Medecin --> UC5
+Medecin --> UC6
+Medecin --> UC8
+Medecin --> UC9
+Medecin --> UC10
+Medecin --> UC11
+Medecin --> UC12
+Medecin --> UC13
+Medecin --> UC14
+Medecin --> UC15
+
+' Relations include/extend
+UC1 ..> UC7 : <<include>>
+UC6 ..> UC8 : <<include>>
+UC9 ..> UC11 : <<extend>>
+UC9 ..> UC12 : <<extend>>
+UC9 ..> UC13 : <<extend>>
+UC9 ..> UC14 : <<extend>>
+UC9 ..> UC15 : <<extend>>
+UC8 ..> UC10 : <<include>>
+
+note right of UC1
+  Enregistrement des informations:
+  - CIN
+  - Nom, Prénom
+  - Date de naissance
+  - Sexe
+  - Téléphone
+  - Type de mutuelle
+end note
+
+note right of UC7
+  Créé automatiquement
+  lors de la création
+  d'un nouveau patient
+end note
+
+note bottom of UC8
+  Contient:
+  - Antécédents médicaux/chirurgicaux
+  - Allergies
+  - Traitements en cours
+  - Historique consultations
+  - Documents médicaux
+end note
+
+@enduml

@@ -1,0 +1,115 @@
+@startuml Sequence Diagram - Consultation Workflow
+!theme plain
+autonumber
+
+actor "Médecin" as Medecin
+participant "ConsultationController" as Controller
+participant "ConsultationService" as Service
+participant "RendezVousService" as RdvService
+participant "DossierMedicalService" as DossierService
+participant "PatientService" as PatientService
+participant "ConsultationMapper" as Mapper
+participant "Database" as DB
+
+title Processus de Consultation Médicale
+
+Medecin -> Controller: POST /api/consultations\n(consultationDto)
+activate Controller
+
+Controller -> Service: createConsultation(dto)
+activate Service
+
+' Récupération du rendez-vous
+Service -> RdvService: getRendezVousById(rdvId)
+activate RdvService
+RdvService -> DB: findById(rdvId)
+activate DB
+DB --> RdvService: rendezVous
+deactivate DB
+RdvService --> Service: rendezVousDto
+deactivate RdvService
+
+' Vérification du statut du RDV
+alt RendezVous CONFIRME
+    
+    ' Récupération du patient
+    Service -> PatientService: getPatientById(patientId)
+    activate PatientService
+    PatientService -> DB: findById(patientId)
+    activate DB
+    DB --> PatientService: patient
+    deactivate DB
+    PatientService --> Service: patientDto
+    deactivate PatientService
+    
+    ' Récupération du dossier médical
+    Service -> DossierService: getDossierMedicalByPatientId(patientId)
+    activate DossierService
+    DossierService -> DB: findByPatientId(patientId)
+    activate DB
+    DB --> DossierService: dossierMedical
+    deactivate DB
+    DossierService --> Service: dossierMedicalDto
+    deactivate DossierService
+    
+    ' Création de la consultation
+    Service -> Mapper: toEntity(dto)
+    activate Mapper
+    Mapper --> Service: consultation (entity)
+    deactivate Mapper
+    
+    Service -> Service: set dateConsultation = now()
+    Service -> Service: associer patient, médecin, dossier
+    
+    Service -> DB: save(consultation)
+    activate DB
+    DB --> Service: consultation saved
+    deactivate DB
+    
+    ' Mise à jour du rendez-vous
+    Service -> RdvService: updateStatut(rdvId, TERMINE)
+    activate RdvService
+    RdvService -> DB: update rendezVous statut
+    activate DB
+    DB --> RdvService: OK
+    deactivate DB
+    RdvService --> Service: OK
+    deactivate RdvService
+    
+    ' Mise à jour du dossier médical
+    Service -> DossierService: addConsultationToHistorique(dossierMedicalId, consultationId)
+    activate DossierService
+    DossierService -> DB: update dossier
+    activate DB
+    DB --> DossierService: OK
+    deactivate DB
+    DossierService --> Service: OK
+    deactivate DossierService
+    
+    Service -> Mapper: toDto(consultation)
+    activate Mapper
+    Mapper --> Service: consultationDto
+    deactivate Mapper
+    
+    Service --> Controller: consultationDto
+    deactivate Service
+    Controller --> Medecin: 201 Created\nconsultationDto
+    
+else RendezVous non CONFIRME
+    Service --> Controller: Exception\n"RDV non confirmé"
+    deactivate Service
+    Controller --> Medecin: 400 Bad Request\n"RDV doit être confirmé"
+end
+
+deactivate Controller
+
+note right of Medecin
+  Le médecin enregistre:
+  - Examen clinique
+  - Examens supplémentaires
+  - Diagnostic
+  - Traitement prescrit
+  - Observations
+end note
+
+@enduml
