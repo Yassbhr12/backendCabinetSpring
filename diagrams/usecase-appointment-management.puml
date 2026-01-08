@@ -1,0 +1,113 @@
+@startuml Use Case Diagram - Appointment Management
+!theme plain
+
+left to right direction
+
+actor "Secrétaire" as Secretaire
+actor "Médecin" as Medecin
+actor "Patient" as Patient
+
+rectangle "Système Cabinet Médical" {
+    
+    package "Gestion des Rendez-vous" {
+        usecase "Créer un rendez-vous" as UC1
+        usecase "Modifier un rendez-vous" as UC2
+        usecase "Annuler un rendez-vous" as UC3
+        usecase "Confirmer un rendez-vous" as UC4
+        usecase "Consulter agenda" as UC5
+        usecase "Rechercher rendez-vous" as UC6
+        usecase "Lister rendez-vous du jour" as UC7
+        usecase "Lister rendez-vous par patient" as UC8
+        usecase "Lister rendez-vous par médecin" as UC9
+        usecase "Vérifier disponibilités" as UC10
+        usecase "Ajouter notes rendez-vous" as UC11
+    }
+    
+    package "Gestion des Consultations" {
+        usecase "Réaliser une consultation" as UC12
+        usecase "Enregistrer examen clinique" as UC13
+        usecase "Prescrire examens complémentaires" as UC14
+        usecase "Établir diagnostic" as UC15
+        usecase "Prescrire traitement" as UC16
+        usecase "Ajouter observations" as UC17
+        usecase "Consulter historique patient" as UC18
+    }
+    
+    package "Notifications" {
+        usecase "Envoyer rappel RDV" as UC19
+        usecase "Notifier confirmation RDV" as UC20
+        usecase "Notifier annulation RDV" as UC21
+    }
+}
+
+' Relations Secrétaire
+Secretaire --> UC1
+Secretaire --> UC2
+Secretaire --> UC3
+Secretaire --> UC4
+Secretaire --> UC5
+Secretaire --> UC6
+Secretaire --> UC7
+Secretaire --> UC8
+Secretaire --> UC9
+Secretaire --> UC11
+
+' Relations Médecin
+Medecin --> UC5
+Medecin --> UC6
+Medecin --> UC7
+Medecin --> UC9
+Medecin --> UC11
+Medecin --> UC12
+Medecin --> UC13
+Medecin --> UC14
+Medecin --> UC15
+Medecin --> UC16
+Medecin --> UC17
+Medecin --> UC18
+
+' Relations Patient
+Patient --> UC19
+Patient --> UC20
+Patient --> UC21
+
+' Relations include/extend
+UC1 ..> UC10 : <<include>>
+UC2 ..> UC10 : <<include>>
+UC12 ..> UC13 : <<include>>
+UC12 ..> UC15 : <<include>>
+UC12 ..> UC16 : <<include>>
+UC12 ..> UC14 : <<extend>>
+UC12 ..> UC17 : <<extend>>
+UC12 ..> UC18 : <<extend>>
+UC4 ..> UC20 : <<include>>
+UC3 ..> UC21 : <<include>>
+
+note right of UC1
+  Création avec:
+  - Date et heure
+  - Médecin assigné
+  - Patient
+  - Motif
+  - Statut: EN_ATTENTE
+end note
+
+note right of UC10
+  Vérification de la
+  disponibilité du médecin
+  avant création/modification
+end note
+
+note bottom of UC12
+  Consultation associée
+  à un rendez-vous confirmé.
+  Change le statut RDV
+  en TERMINE
+end note
+
+note bottom of UC19
+  Envoi automatique 24h
+  avant le rendez-vous
+end note
+
+@enduml

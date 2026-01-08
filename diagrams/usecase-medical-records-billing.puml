@@ -1,0 +1,112 @@
+@startuml Use Case Diagram - Medical Records and Billing
+!theme plain
+
+left to right direction
+
+actor "Secrétaire" as Secretaire
+actor "Médecin" as Medecin
+actor "Patient" as Patient
+
+rectangle "Système Cabinet Médical" {
+    
+    package "Gestion Dossier Médical" {
+        usecase "Consulter dossier médical" as UC1
+        usecase "Mettre à jour dossier" as UC2
+        usecase "Consulter historique" as UC3
+        usecase "Gérer antécédents" as UC4
+        usecase "Gérer allergies" as UC5
+        usecase "Gérer documents" as UC6
+    }
+    
+    package "Gestion de la Facturation" {
+        usecase "Générer facture" as UC7
+        usecase "Consulter factures" as UC8
+        usecase "Modifier facture" as UC9
+        usecase "Enregistrer paiement" as UC10
+        usecase "Lister factures impayées" as UC11
+        usecase "Imprimer facture" as UC12
+        usecase "Calculer montant selon mutuelle" as UC13
+        usecase "Consulter historique paiements" as UC14
+    }
+    
+    package "Gestion des Médicaments" {
+        usecase "Rechercher médicament" as UC15
+        usecase "Consulter informations médicament" as UC16
+        usecase "Ajouter médicament" as UC17
+        usecase "Modifier médicament" as UC18
+        usecase "Désactiver médicament" as UC19
+        usecase "Consulter contre-indications" as UC20
+    }
+}
+
+' Relations Médecin
+Medecin --> UC1
+Medecin --> UC2
+Medecin --> UC3
+Medecin --> UC4
+Medecin --> UC5
+Medecin --> UC6
+Medecin --> UC15
+Medecin --> UC16
+Medecin --> UC17
+Medecin --> UC18
+Medecin --> UC20
+
+' Relations Secrétaire
+Secretaire --> UC7
+Secretaire --> UC8
+Secretaire --> UC9
+Secretaire --> UC10
+Secretaire --> UC11
+Secretaire --> UC12
+Secretaire --> UC14
+Secretaire --> UC15
+Secretaire --> UC16
+
+' Relations Patient
+Patient --> UC8
+Patient --> UC10
+Patient --> UC12
+
+' Relations include/extend
+UC1 ..> UC3 : <<include>>
+UC7 ..> UC13 : <<include>>
+UC10 ..> UC14 : <<extend>>
+UC2 ..> UC4 : <<extend>>
+UC2 ..> UC5 : <<extend>>
+UC2 ..> UC6 : <<extend>>
+UC16 ..> UC20 : <<include>>
+
+note right of UC7
+  Facture générée après
+  consultation terminée.
+  Montant calculé selon:
+  - Type consultation
+  - Type mutuelle patient
+end note
+
+note right of UC13
+  Calcul automatique avec:
+  - CNSS: réduction 70%
+  - CNOPS: réduction 80%
+  - AUCUNE: tarif plein
+end note
+
+note bottom of UC10
+  Modes de paiement:
+  - ESPECES
+  - CARTE_BANCAIRE
+  - CHEQUE
+  - VIREMENT
+end note
+
+note right of UC15
+  Base de données
+  médicaments avec:
+  - Indications
+  - Contre-indications
+  - Dosage
+  - Forme
+end note
+
+@enduml

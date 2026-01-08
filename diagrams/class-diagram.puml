@@ -1,0 +1,235 @@
+@startuml Class Diagram - Cabinet Medical
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+' Enumerations
+enum Role {
+    MEDECIN
+    SECRETAIRE
+    ADMIN
+}
+
+enum Statut {
+    CONFIRME
+    ANNULE
+    EN_ATTENTE
+    TERMINE
+}
+
+enum TypeConsultation {
+    CONSULTATION
+    CONTROLE
+}
+
+enum StatutFacture {
+    PAYEE
+    IMPAYEE
+    PARTIELLE
+}
+
+enum ModePaiement {
+    ESPECES
+    CARTE_BANCAIRE
+    CHEQUE
+    VIREMENT
+}
+
+enum TypeMutuelle {
+    CNSS
+    CNOPS
+    AUCUNE
+}
+
+enum Sexe {
+    HOMME
+    FEMME
+}
+
+enum TypeNotification {
+    RAPPEL_RDV
+    NOUVEAU_RDV
+    ANNULATION_RDV
+    RESULTAT_EXAMEN
+}
+
+' Main Entities
+class Cabinet {
+    - id: Long
+    - logo: String
+    - nom: String
+    - specialite: String
+    - adresse: String
+    - numTel: String
+    - actif: Boolean
+    + Cabinet()
+    + toString(): String
+}
+
+class Utilisateur {
+    - id: Long
+    - login: String
+    - pwd: String
+    - nom: String
+    - prenom: String
+    - numTel: String
+    - signature: String
+    - validationCode: String
+    - validationCodeExpiration: LocalDateTime
+    - actif: Boolean
+    - role: Role
+    + Utilisateur()
+    + toString(): String
+}
+
+class Patient {
+    - id: Long
+    - cin: String
+    - nom: String
+    - prenom: String
+    - dateNaissance: LocalDate
+    - sexe: Sexe
+    - numTel: String
+    - typeMutuelle: TypeMutuelle
+    + Patient()
+    + Patient(...)
+    + toString(): String
+}
+
+class RendezVous {
+    - idRendezVous: Long
+    - dateRdv: LocalDate
+    - heureRdv: LocalTime
+    - motif: String
+    - dateCreation: LocalDateTime
+    - statut: Statut
+    - notes: String
+    + RendezVous()
+    + RendezVous(...)
+    + toString(): String
+}
+
+class Consultation {
+    - idConsultation: Long
+    - typeConsultation: TypeConsultation
+    - dateConsultation: LocalDate
+    - examenClinique: List<String>
+    - examenSupplementaire: List<String>
+    - diagnostic: String
+    - traitement: List<String>
+    - observations: String
+    + Consultation()
+    + Consultation(...)
+    + toString(): String
+}
+
+class DossierMedical {
+    - idDossier: Long
+    - antMedicaux: String
+    - antChirug: String
+    - allergies: String
+    - traitement: String
+    - habitudes: String
+    - documentsMedicaux: String
+    - dateCreation: LocalDate
+    + DossierMedical()
+    + DossierMedical(...)
+    + toString(): String
+}
+
+class Facture {
+    - idFacture: Long
+    - montant: Float
+    - modePaiement: ModePaiement
+    - dateFacture: LocalDate
+    - statut: StatutFacture
+    + Facture()
+    + Facture(...)
+    + toString(): String
+}
+
+class Medicament {
+    - id: Long
+    - nom: String
+    - forme: String
+    - dosage: String
+    - indication: List<String>
+    - contrIndication: List<String>
+    - actif: Boolean
+    + Medicament()
+    + Medicament(...)
+}
+
+class Notification {
+    - id: Long
+    - message: String
+    - type: TypeNotification
+    - lu: Boolean
+    - dateCreation: LocalDateTime
+    + Notification()
+    + Notification(...)
+}
+
+' Relationships
+Cabinet "1" -- "*" Utilisateur : emploie >
+Utilisateur "*" -- "1" Role : a >
+Utilisateur "1" -- "*" RendezVous : gère >
+Utilisateur "1" -- "*" Consultation : réalise >
+Utilisateur "1" -- "*" Notification : reçoit >
+
+Patient "1" -- "1" DossierMedical : possède >
+Patient "1" -- "*" RendezVous : prend >
+Patient "1" -- "*" Consultation : consulte >
+Patient "1" -- "*" Facture : paie >
+Patient "1" -- "*" Notification : concerne >
+
+RendezVous "*" -- "1" Statut : a >
+RendezVous "1" -- "0..1" Consultation : génère >
+RendezVous "*" -- "1" Patient
+RendezVous "*" -- "1" Utilisateur
+
+Consultation "*" -- "1" TypeConsultation : type >
+Consultation "*" -- "1" Patient
+Consultation "*" -- "1" Utilisateur
+Consultation "*" -- "1" DossierMedical : enregistré dans >
+Consultation "1" -- "0..1" Facture : génère >
+Consultation "1" -- "0..1" RendezVous
+
+DossierMedical "1" -- "*" Consultation : contient >
+DossierMedical "1" -- "1" Patient
+
+Facture "*" -- "1" StatutFacture : a >
+Facture "*" -- "1" ModePaiement : utilise >
+Facture "*" -- "1" Patient
+Facture "1" -- "1" Consultation
+
+Patient "*" -- "1" TypeMutuelle : a >
+Patient "*" -- "1" Sexe : est >
+
+Notification "*" -- "1" TypeNotification : type >
+
+note right of Utilisateur
+  Représente les utilisateurs
+  du système (médecin, 
+  secrétaire, admin)
+end note
+
+note right of Patient
+  Informations complètes
+  du patient incluant
+  données personnelles
+  et mutuelle
+end note
+
+note right of RendezVous
+  Gestion des rendez-vous
+  avec statuts et motifs
+end note
+
+note right of Consultation
+  Détails de la consultation
+  incluant examens,
+  diagnostic et traitement
+end note
+
+@enduml

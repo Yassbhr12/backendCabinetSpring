@@ -1,0 +1,77 @@
+@startuml Use Case Diagram - Authentication and User Management
+!theme plain
+
+left to right direction
+
+actor "Utilisateur" as User
+actor "Administrateur" as Admin
+
+rectangle "Système Cabinet Médical" {
+    
+    package "Gestion de l'Authentification" {
+        usecase "Se connecter" as UC1
+        usecase "Saisir code validation" as UC2
+        usecase "Se déconnecter" as UC3
+        usecase "Récupérer mot de passe" as UC4
+    }
+    
+    package "Gestion des Utilisateurs" {
+        usecase "Créer un utilisateur" as UC5
+        usecase "Modifier un utilisateur" as UC6
+        usecase "Supprimer un utilisateur" as UC7
+        usecase "Lister les utilisateurs" as UC8
+        usecase "Consulter profil utilisateur" as UC9
+        usecase "Activer/Désactiver utilisateur" as UC10
+        usecase "Gérer les rôles" as UC11
+    }
+    
+    package "Gestion du Cabinet" {
+        usecase "Configurer informations cabinet" as UC12
+        usecase "Gérer les médecins" as UC13
+        usecase "Gérer les secrétaires" as UC14
+    }
+}
+
+' Relations pour authentification
+User --> UC1
+UC1 ..> UC2 : <<include>>
+User --> UC3
+User --> UC4
+User --> UC9
+
+' Relations pour gestion utilisateurs (Admin)
+Admin --> UC5
+Admin --> UC6
+Admin --> UC7
+Admin --> UC8
+Admin --> UC10
+Admin --> UC11
+
+' Relations pour gestion cabinet (Admin)
+Admin --> UC12
+Admin --> UC13
+Admin --> UC14
+
+' Extensions
+UC5 ..> UC11 : <<extend>>
+UC6 ..> UC10 : <<extend>>
+
+note right of UC1
+  L'utilisateur saisit login et 
+  mot de passe, puis reçoit un 
+  code par email
+end note
+
+note right of UC2
+  Code de validation à 6 chiffres
+  valable 10 minutes
+end note
+
+note bottom of UC11
+  Rôles disponibles:
+  - MEDECIN
+  - SECRETAIRE
+  - ADMIN
+end note
+
+@enduml

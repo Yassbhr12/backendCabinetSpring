@@ -1,0 +1,122 @@
+@startuml Sequence Diagram - Invoice Generation
+!theme plain
+autonumber
+
+actor "Secrétaire/Médecin" as User
+participant "FactureController" as Controller
+participant "FactureService" as Service
+participant "ConsultationService" as ConsultService
+participant "PatientService" as PatientService
+participant "FactureMapper" as Mapper
+participant "Database" as DB
+
+title Génération de Facture après Consultation
+
+User -> Controller: POST /api/factures\n(factureDto)
+activate Controller
+
+Controller -> Service: createFacture(dto)
+activate Service
+
+' Vérification de la consultation
+Service -> ConsultService: getConsultationById(consultationId)
+activate ConsultService
+ConsultService -> DB: findById(consultationId)
+activate DB
+DB --> ConsultService: consultation
+deactivate DB
+
+alt Consultation existe
+    ConsultService --> Service: consultationDto
+    deactivate ConsultService
+    
+    ' Vérification si facture existe déjà
+    Service -> DB: existsByConsultationId(consultationId)
+    activate DB
+    DB --> Service: exists
+    deactivate DB
+    
+    alt Facture n'existe pas
+        ' Récupération du patient
+        Service -> PatientService: getPatientById(patientId)
+        activate PatientService
+        PatientService -> DB: findById(patientId)
+        activate DB
+        DB --> PatientService: patient
+        deactivate DB
+        PatientService --> Service: patientDto
+        deactivate PatientService
+        
+        ' Calcul du montant selon type mutuelle
+        Service -> Service: calculerMontant(typeConsultation, typeMutuelle)
+        
+        Service -> Mapper: toEntity(dto)
+        activate Mapper
+        Mapper --> Service: facture (entity)
+        deactivate Mapper
+        
+        Service -> Service: set dateFacture = now()
+        Service -> Service: set statut = IMPAYEE
+        Service -> Service: associer consultation et patient
+        
+        Service -> DB: save(facture)
+        activate DB
+        DB --> Service: facture saved
+        deactivate DB
+        
+        Service -> Mapper: toDto(facture)
+        activate Mapper
+        Mapper --> Service: factureDto
+        deactivate Mapper
+        
+        Service --> Controller: factureDto
+        deactivate Service
+        Controller --> User: 201 Created\nfactureDto
+        
+    else Facture existe déjà
+        Service --> Controller: Exception\n"Facture déjà créée"
+        deactivate Service
+        Controller --> User: 409 Conflict\n"Facture existe"
+    end
+    
+else Consultation n'existe pas
+    ConsultService --> Service: Exception\n"Consultation non trouvée"
+    deactivate ConsultService
+    Service --> Controller: Exception
+    deactivate Service
+    Controller --> User: 404 Not Found\n"Consultation non trouvée"
+end
+
+deactivate Controller
+
+== Mise à jour du paiement ==
+
+User -> Controller: PUT /api/factures/{id}/paiement\n(modePaiement)
+activate Controller
+Controller -> Service: updatePaiement(id, modePaiement)
+activate Service
+
+Service -> DB: findById(id)
+activate DB
+DB --> Service: facture
+deactivate DB
+
+Service -> Service: set modePaiement
+Service -> Service: set statut = PAYEE
+
+Service -> DB: update(facture)
+activate DB
+DB --> Service: facture updated
+deactivate DB
+
+Service -> Mapper: toDto(facture)
+activate Mapper
+Mapper --> Service: factureDto
+deactivate Mapper
+
+Service --> Controller: factureDto
+deactivate Service
+Controller --> User: 200 OK\nfactureDto
+deactivate Controller
+
+@enduml
