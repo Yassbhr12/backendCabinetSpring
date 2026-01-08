@@ -11,15 +11,18 @@ import net.cabinet.backendspring.service.UtilisateurService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-//@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000")
 public class AuthRequestController {
     private final UtilisateurService utilisateurService;
+
+
 
     public AuthRequestController(UtilisateurService utilisateurService) {
         this.utilisateurService = utilisateurService;
@@ -29,9 +32,10 @@ public class AuthRequestController {
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest){
         try {
             utilisateurService.processLogin(authRequest);
+
             return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-                    "message", "User successfully logged in. Validation code sent.",
-                    "login", authRequest.getLogin()
+                "message", "User successfully logged in. Validation code sent.",
+                "login", authRequest.getLogin()
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(

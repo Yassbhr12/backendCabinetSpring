@@ -2,7 +2,7 @@ package net.cabinet.backendspring.controller;
 
 
 import net.cabinet.backendspring.dto.UtilisateurDto;
-import net.cabinet.backendspring.dto.authentification.AuthRequest;
+import net.cabinet.backendspring.dto.CreateUtilisateurRequest;
 import net.cabinet.backendspring.service.UtilisateurService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,8 +33,8 @@ public class UtilisateurController {
     }
 
     @PostMapping
-    public ResponseEntity<UtilisateurDto> createUtilisateur(@RequestBody UtilisateurDto dto , @RequestBody AuthRequest authRequest){
-        UtilisateurDto utilisateurDto = utilisateurService.createUtilisateur(dto , authRequest);
+    public ResponseEntity<UtilisateurDto> createUtilisateur(@RequestBody CreateUtilisateurRequest request){
+        UtilisateurDto utilisateurDto = utilisateurService.createUtilisateur(request.getUtilisateur(), request.getAuth());
         return ResponseEntity.status(HttpStatus.CREATED).body(utilisateurDto);
     }
 

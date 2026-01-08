@@ -1,0 +1,639 @@
+{
+  "info": {
+    "_postman_id": "56e8f8c7-9cbf-4be5-9f0b-93dff64c6f2e",
+    "name": "backendCabinetSpring",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (send validation code)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"{{login}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Validate code (get JWT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.Reponse && json.Reponse.token) {",
+                  "  pm.environment.set('token', json.Reponse.token);",
+                  "}",
+                  "if (json && json.Reponse && json.Reponse.id) {",
+                  "  pm.environment.set('utilisateurId', String(json.Reponse.id));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"{{login}}\",\n  \"validationCode\": \"{{validationCode}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login/validation"
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/auth/me"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Patients",
+      "item": [
+        {
+          "name": "Get all patients",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/patients"
+          }
+        },
+        {
+          "name": "Create patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.id) pm.environment.set('patientId', String(json.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cin\": \"AA123456\",\n  \"nom\": \"Test\",\n  \"prenom\": \"Patient\",\n  \"dateNaissance\": \"1990-01-01\",\n  \"sexe\": \"M\",\n  \"numTel\": \"0600000000\",\n  \"typeMutuelle\": \"CNSS\"\n}"
+            },
+            "url": "{{baseUrl}}/api/patients"
+          }
+        },
+        {
+          "name": "Get patient by id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/patients/{{patientId}}"
+          }
+        },
+        {
+          "name": "Update patient",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cin\": \"AA123456\",\n  \"nom\": \"Test\",\n  \"prenom\": \"Patient Updated\",\n  \"dateNaissance\": \"1990-01-01\",\n  \"sexe\": \"M\",\n  \"numTel\": \"0600000001\",\n  \"typeMutuelle\": \"CNSS\"\n}"
+            },
+            "url": "{{baseUrl}}/api/patients/{{patientId}}"
+          }
+        },
+        {
+          "name": "Delete patient",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/patients/{{patientId}}"
+          }
+        },
+        {
+          "name": "Get patient's dossier medical",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/patients/{{patientId}}/dossier-medical"
+          }
+        },
+        {
+          "name": "Get patient's rendez-vous",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/patients/{{patientId}}/rendez-vous"
+          }
+        },
+        {
+          "name": "Get patient's factures",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/patients/{{patientId}}/factures"
+          }
+        },
+        {
+          "name": "Get patient's consultations",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/patients/{{patientId}}/consultations"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dossier medicaux",
+      "item": [
+        {
+          "name": "Get all dossier medicaux",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/dossier-medicaux"
+          }
+        },
+        {
+          "name": "Create dossier medical",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.id) pm.environment.set('dossierMedicalId', String(json.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"antMedicaux\": \"Aucun\",\n  \"antChirug\": \"Aucun\",\n  \"allergies\": \"Aucune\",\n  \"traitement\": \"Aucun\",\n  \"habitudes\": \"Non fumeur\",\n  \"documentsMedicaux\": \"\",\n  \"patientId\": {{patientId}}\n}"
+            },
+            "url": "{{baseUrl}}/api/dossier-medicaux"
+          }
+        },
+        {
+          "name": "Get dossier medical by id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/dossier-medicaux/{{dossierMedicalId}}"
+          }
+        },
+        {
+          "name": "Get dossier medical by patient",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/dossier-medicaux/patient/{{patientId}}"
+          }
+        },
+        {
+          "name": "Update dossier medical",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"antMedicaux\": \"Diabète\",\n  \"allergies\": \"Pollen\",\n  \"patientId\": {{patientId}}\n}"
+            },
+            "url": "{{baseUrl}}/api/dossier-medicaux/{{dossierMedicalId}}"
+          }
+        },
+        {
+          "name": "Delete dossier medical",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/dossier-medicaux/{{dossierMedicalId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Utilisateurs (ADMIN only)",
+      "item": [
+        {
+          "name": "Get all utilisateurs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Astuce: récupère un medecinId automatiquement si trouvé",
+                  "try {",
+                  "  const users = pm.response.json();",
+                  "  if (Array.isArray(users)) {",
+                  "    const med = users.find(u => u && u.role === 'MEDECIN');",
+                  "    if (med && med.id) pm.environment.set('medecinId', String(med.id));",
+                  "  }",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/utilisateurs"
+          }
+        },
+        {
+          "name": "Get utilisateur by id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/utilisateurs/{{utilisateurId}}"
+          }
+        },
+        {
+          "name": "Create utilisateur (wrapper request)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.id) pm.environment.set('utilisateurId', String(json.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"utilisateur\": {\n    \"actif\": true,\n    \"role\": \"SECRETAIRE\",\n    \"nom\": \"Test\",\n    \"prenom\": \"Secretaire\",\n    \"numTel\": \"0600000000\",\n    \"cabinetId\": {{cabinetId}}\n  },\n  \"auth\": {\n    \"login\": \"test.secretaire\",\n    \"password\": \"Secretaire123\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/utilisateurs"
+          }
+        },
+        {
+          "name": "Update utilisateur",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actif\": true,\n  \"nom\": \"Test\",\n  \"prenom\": \"Updated\",\n  \"numTel\": \"0600000001\"\n}"
+            },
+            "url": "{{baseUrl}}/api/utilisateurs/{{utilisateurId}}"
+          }
+        },
+        {
+          "name": "Delete utilisateur",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/utilisateurs/{{utilisateurId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Medicaments (ADMIN only)",
+      "item": [
+        {
+          "name": "Get all medicaments",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/medicaments"
+          }
+        },
+        {
+          "name": "Create medicament",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.id) pm.environment.set('medicamentId', String(json.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Paracetamol\",\n  \"forme\": \"Comprimé\",\n  \"dosage\": \"500mg\",\n  \"indication\": [\"Douleur\"],\n  \"contrIndication\": [\"Allergie\"],\n  \"actif\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/medicaments"
+          }
+        },
+        {
+          "name": "Get medicament by id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/medicaments/{{medicamentId}}"
+          }
+        },
+        {
+          "name": "Update medicament",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Paracetamol\",\n  \"forme\": \"Comprimé\",\n  \"dosage\": \"1g\",\n  \"indication\": [\"Fièvre\"],\n  \"contrIndication\": [\"Allergie\"],\n  \"actif\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/medicaments/{{medicamentId}}"
+          }
+        },
+        {
+          "name": "Delete medicament",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/medicaments/{{medicamentId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rendez-vous",
+      "item": [
+        {
+          "name": "Get all rendez-vous",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/rendez-vous"
+          }
+        },
+        {
+          "name": "Create rendez-vous",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.id) pm.environment.set('rendezVousId', String(json.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dateRdv\": \"2025-12-20\",\n  \"heureRdv\": \"09:30:00\",\n  \"motif\": \"Contrôle\",\n  \"statut\": \"EN_ATTENTE\",\n  \"notes\": \"\",\n  \"patientId\": {{patientId}},\n  \"medecinId\": {{medecinId}},\n  \"typeConsultation\": \"CONSULTATION\"\n}"
+            },
+            "url": "{{baseUrl}}/api/rendez-vous"
+          }
+        },
+        {
+          "name": "Get rendez-vous by id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/rendez-vous/{{rendezVousId}}"
+          }
+        },
+        {
+          "name": "Update rendez-vous",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dateRdv\": \"2025-12-20\",\n  \"heureRdv\": \"10:00:00\",\n  \"motif\": \"Contrôle (modifié)\",\n  \"notes\": \"update\"\n}"
+            },
+            "url": "{{baseUrl}}/api/rendez-vous/{{rendezVousId}}"
+          }
+        },
+        {
+          "name": "Get rendez-vous by patient",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/rendez-vous/patient/{{patientId}}"
+          }
+        },
+        {
+          "name": "Get rendez-vous by medecin",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/rendez-vous/medecin/{{medecinId}}"
+          }
+        },
+        {
+          "name": "Get rendez-vous du jour (medecin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/rendez-vous/medecin/{{medecinId}}/aujourdhui"
+          }
+        },
+        {
+          "name": "Confirmer rendez-vous",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"statut\": \"CONFIRME\"\n}" },
+            "url": "{{baseUrl}}/api/rendez-vous/{{rendezVousId}}/confirmer"
+          }
+        },
+        {
+          "name": "Annuler rendez-vous",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"statut\": \"ANNULE\"\n}" },
+            "url": "{{baseUrl}}/api/rendez-vous/{{rendezVousId}}/annuler"
+          }
+        },
+        {
+          "name": "Delete rendez-vous",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/rendez-vous/{{rendezVousId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultations",
+      "item": [
+        {
+          "name": "Get all consultations",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/consultations"
+          }
+        },
+        {
+          "name": "Create consultation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.idConsultation) pm.environment.set('consultationId', String(json.idConsultation));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"typeConsultation\": \"CONSULTATION\",\n  \"dateConsultation\": \"2025-12-20\",\n  \"examenClinique\": [\"TA\"],\n  \"examenSupplementaire\": [],\n  \"diagnostic\": \"RAS\",\n  \"traitement\": [\"Repos\"],\n  \"observations\": \"\",\n  \"rendezVousId\": {{rendezVousId}},\n  \"patientId\": {{patientId}},\n  \"medecinId\": {{medecinId}}\n}"
+            },
+            "url": "{{baseUrl}}/api/consultations"
+          }
+        },
+        {
+          "name": "Get consultation by id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/consultations/{{consultationId}}"
+          }
+        },
+        {
+          "name": "Get consultations by medecin",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/consultations/medecin/{{medecinId}}"
+          }
+        },
+        {
+          "name": "Get consultations by patient",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/consultations/patient/{{patientId}}"
+          }
+        },
+        {
+          "name": "Update consultation",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"diagnostic\": \"Mis à jour\",\n  \"observations\": \"OK\"\n}" },
+            "url": "{{baseUrl}}/api/consultations/{{consultationId}}"
+          }
+        },
+        {
+          "name": "Delete consultation",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/consultations/{{consultationId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Factures",
+      "item": [
+        {
+          "name": "Get all factures",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/factures"
+          }
+        },
+        {
+          "name": "Create facture",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.id) pm.environment.set('factureId', String(json.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"montant\": 200.0,\n  \"modePaiement\": \"ESPECES\",\n  \"dateFacture\": \"2025-12-20\",\n  \"statutFacture\": \"NON_PAYEE\",\n  \"consultationId\": {{consultationId}},\n  \"observations\": \"\",\n  \"patientId\": {{patientId}}\n}"
+            },
+            "url": "{{baseUrl}}/api/factures"
+          }
+        },
+        {
+          "name": "Get facture by id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/factures/{{factureId}}"
+          }
+        },
+        {
+          "name": "Update facture",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"montant\": 250.0,\n  \"statutFacture\": \"PAYEE\"\n}" },
+            "url": "{{baseUrl}}/api/factures/{{factureId}}"
+          }
+        },
+        {
+          "name": "Delete facture",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/factures/{{factureId}}"
+          }
+        }
+      ]
+    }
+  ]
+}

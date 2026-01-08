@@ -25,11 +25,11 @@ public class RendezVousDto {
 
     private String notes;
 
-    private Long PatientId;
+    private Long patientId;
     private String cin;
     private String patientNom;
 
-    private Long MedecinId;
+    private Long medecinId;
     private String medecinNom;
     private String medecinPrenom;
 
@@ -45,10 +45,10 @@ public class RendezVousDto {
         this.motif = motif;
         this.statut = statut;
         this.notes = notes;
-        PatientId = patientId;
+        this.patientId = patientId;
         this.cin = cin;
         this.patientNom = patientNom;
-        MedecinId = medecinId;
+        this.medecinId = medecinId;
         this.medecinNom = medecinNom;
         this.medecinPrenom = medecinPrenom;
         this.consultationId = consultationId;

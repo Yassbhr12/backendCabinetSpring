@@ -45,7 +45,7 @@ public class ConsultationMapper {
 
     }
 
-    public Consultation toEntity(ConsultationDto dto , RendezVous rendezVous , Patient patient , Utilisateur medecin ){
+    public Consultation toEntity(ConsultationDto dto , RendezVous rendezVous , Patient patient , Utilisateur medecin , DossierMedical dossierMedical){
         Consultation consultation = new Consultation();
 
         consultation.setIdConsultation(dto.getIdConsultation());
@@ -63,7 +63,7 @@ public class ConsultationMapper {
 
         consultation.setMedecin(medecin);
 
-//        consultation.setDossierMedical(dossierMedical);
+        consultation.setDossierMedical(dossierMedical);
 
         return consultation;
     }

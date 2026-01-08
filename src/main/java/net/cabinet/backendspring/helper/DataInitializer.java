@@ -28,11 +28,11 @@ public class DataInitializer implements CommandLineRunner {
         if (utilisateurRepository.count() == 0) {
             // Créer un admin
             Utilisateur admin = new Utilisateur();
-            admin.setLogin("bahraahmedyassine@gmail.com");
-            admin.setPwd(passwordEncoder.encode("Yassbhr12"));
+            admin.setLogin("aymanehajry4@gmail.com");
+            admin.setPwd(passwordEncoder.encode("Aymane2004@"));
             admin.setNom("Admin");
-            admin.setPrenom("Yassine");
-            admin.setNumTel("0656889706");
+            admin.setPrenom("Aymane");
+            admin.setNumTel("0600922181");
             admin.setRole(Role.ADMIN);
             admin.setActif(true);
             utilisateurRepository.save(admin);
@@ -59,7 +59,11 @@ public class DataInitializer implements CommandLineRunner {
             secretaire.setActif(true);
             utilisateurRepository.save(secretaire);
 
+
+
             System.out.println("✅ Utilisateurs de test créés");
         }
+
+    
     }
 }

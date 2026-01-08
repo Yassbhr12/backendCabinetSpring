@@ -8,6 +8,8 @@ import net.cabinet.backendspring.repository.CabinetRepo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class CabinetService {
 
@@ -30,6 +32,10 @@ public class CabinetService {
 
     public CabinetDto getCabinetById(Long id){
         return cabinetRepo.findById(id).map(mapper::toDto).orElseThrow(()-> new RuntimeException("Cabinet Not Found"));
+    }
+
+    public List<CabinetDto> getAllCabinets(){
+        return cabinetRepo.findAll().stream().map(mapper::toDto).toList();
     }
 
     @Transactional
